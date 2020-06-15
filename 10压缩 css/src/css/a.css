@@ -1,0 +1,5 @@
+body{
+    background-color: antiquewhite;
+    display: flex;
+    backface-visibility: hidden;
+}

@@ -1,0 +1,10 @@
+body{
+    background-color: antiquewhite;
+    display: -webkit-box;
+    display: flex;
+    -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+}
+body{
+    color: red;
+}
