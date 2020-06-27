@@ -38,7 +38,7 @@ const commonCssLoader = [
         options: {
             ident: 'postcss',
             plugins: () =>{
-                require('../18source-map/node_modules/postcss-preset-env')
+                require('postcss-preset-env')
             }
         }
 
@@ -163,5 +163,18 @@ module.exports = {
         open: false,
         port: 3000,
         hot: true,
-    }
+    },
+    devtool: 'eval-source-map'
+
+    /*
+        source-map: 一种 提供源代码到构建后代码映射 技术 （如果构建后代码出错了，通过映射可以追踪到源代码错误）
+
+        [inline-|hidden-|eval-][nosources-][cheap-[module-]]source-map
+
+        inline-source-map：内联
+        hidden-source-map：外部
+        eval-source-map：外部
+
+        内联 和外部的区别：1.外部生成了文件，内联没有 2.内联构建速度更快
+    */
 }
