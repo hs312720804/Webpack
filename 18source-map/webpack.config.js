@@ -38,7 +38,7 @@ const commonCssLoader = [
         options: {
             ident: 'postcss',
             plugins: () =>{
-                require('postcss-preset-env')
+                require('../20缓存/node_modules/postcss-preset-env')
             }
         }
 
@@ -55,22 +55,6 @@ module.exports = {
     module: {
         rules: [
             {
-                // 处理样式文件
-                test:/\.css$/,
-                use: [...commonCssLoader]
-                    
-            },
-            {
-                // 处理less样式文件
-                test:/\.less$/,
-                use: [...commonCssLoader,'less-loader']
-            },
-            /*
-                正常来讲，一个文件只能被一个loader处理.
-                当一个文件要被多个loader处理，那么一定要指定loader执行的先后顺序：
-                    先执行 eslint 在执行 babel
-            */
-            {
                 // js语法检查
                 // 在 package.json 中 eslintConfig --> airbnb
                 test: /\.js$/,
@@ -83,59 +67,83 @@ module.exports = {
                 }
             },
             {
-                // js兼容性处理
-                test: /\.js$/,
-                exclude: /node_modules/,
-                loader: 'babel-loader',
-                options: {
-                    // 预设：指示babel做怎么样的兼容性处理
-                    presets: [
-                        [
-                            '@babel/preset-env',
-                            {
-                                // 按需加载
-                                useBuiltIns: 'usage',
-                                // 指定core-js版本
-                                corejs: {version: 3},
-                                // 指定兼容性做到哪个版本浏览器
-                                targets: {
-                                    chrome: '60',
-                                    firefox: '60',
-                                    safari: '10',
-                                    ie: '9',
-                                    edge: '11'
-                                }
-                            }
-                        ],
-
-                    ]
-                }
+                // 以下 loader 只会匹配一个
+                // 注意：不能有两个配置处理同一类型的文件
+                oneOf:[
+                    {
+                        // 处理样式文件
+                        test:/\.css$/,
+                        use: [...commonCssLoader]
+                            
+                    },
+                    {
+                        // 处理less样式文件
+                        test:/\.less$/,
+                        use: [...commonCssLoader,'less-loader']
+                    },
+                    /*
+                        正常来讲，一个文件只能被一个loader处理.
+                        当一个文件要被多个loader处理，那么一定要指定loader执行的先后顺序：
+                            先执行 eslint 在执行 babel
+                    */
+                    
+                    {
+                        // js兼容性处理
+                        test: /\.js$/,
+                        exclude: /node_modules/,
+                        loader: 'babel-loader',
+                        options: {
+                            // 预设：指示babel做怎么样的兼容性处理
+                            presets: [
+                                [
+                                    '@babel/preset-env',
+                                    {
+                                        // 按需加载
+                                        useBuiltIns: 'usage',
+                                        // 指定core-js版本
+                                        corejs: {version: 3},
+                                        // 指定兼容性做到哪个版本浏览器
+                                        targets: {
+                                            chrome: '60',
+                                            firefox: '60',
+                                            safari: '10',
+                                            ie: '9',
+                                            edge: '11'
+                                        }
+                                    }
+                                ],
+        
+                            ]
+                        }
+                    },
+                    
+                    {
+                        // 处理图片资源
+                        test: /\.(jpg|png|gif)$/,
+                        loader: 'url-loader',
+                        options: {
+                            limit: 8*1024,
+                            outputPath:'imgs',
+                            name: '[hash:7].[ext]'
+                        }
+                    },
+                    {
+                        // 处理html中的图片资源
+                        test: /\.html$/,
+                        loader: 'html-loader'
+                    },
+                    {
+                        // 处理其他资源
+                        exclude: /\.(js|html|css|less|jpg|png|gif)/,
+                        // 原封不动输出文件
+                        loader: 'file-loader',
+                        options: {
+                            name: 'media/[hash:7].[ext]'
+                        }
+                    }
+                ]
             },
             
-            {
-                // 处理图片资源
-                test: /\.(jpg|png|gif)$/,
-                loader: 'url-loader',
-                options: {
-                    limit: 8*1024,
-                    outputPath:'imgs',
-                    name: '[hash:7].[ext]'
-                }
-            },
-            {
-                // 处理html中的图片资源
-                test: /\.html$/,
-                loader: 'html-loader'
-            },
-            {
-                // 处理其他资源
-                exclude: /\.(js|html|css|less|jpg|png|gif)/,
-                // 原封不动输出文件
-                loader: 'file-loader',
-                options: {
-                    name: 'media/[hash:7].[ext]'
-                }
-            }
 
         ]
     },
