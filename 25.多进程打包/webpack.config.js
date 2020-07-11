@@ -6,8 +6,10 @@ const OptimizeCssAssetsWebpackPlugin = require('optimize-css-assets-webpack-plug
 const WorkboxWebpackPlugin = require('workbox-webpack-plugin')
 
 /*
-  PWA: 渐进式网络开发应用程序（离线可访问技术）
-    workbox ---> workbox-webpack-plugin
+    thread-loader
+    开启多进程打包.
+    进程启动大概为600ms,进程通信也有开销。
+    只有工作消耗时间比较长，才需要多进程打包
 */
 
 
@@ -82,34 +84,50 @@ module.exports = {
                 // js兼容性处理
                 test: /\.js$/,
                 exclude: /node_modules/,
-                loader: 'babel-loader',
-                options: {
-                    // 预设：指示babel做怎么样的兼容性处理
-                    presets: [
-                        [
-                            '@babel/preset-env',
-                            {
-                                // 按需加载
-                                useBuiltIns: 'usage',
-                                // 指定core-js版本
-                                corejs: { version: 3 },
-                                // 指定兼容性做到哪个版本浏览器
-                                targets: {
-                                    chrome: '60',
-                                    firefox: '60',
-                                    safari: '10',
-                                    ie: '9',
-                                    edge: '11'
-                                }
-                            }
-                        ],
+                use: [
+                    /*
+                        开启多进程打包.
+                        进程启动大概为600ms,进程通信也有开销。
+                        只有工作消耗时间比较长，才需要多进程打包
+                    */
+                    {
+                        loader: 'thread-loader',
+                        options: {
+                            workers: 2
+                        }
+                    },
+                    {
+                        loader: 'babel-loader',
+                        options: {
+                            // 预设：指示babel做怎么样的兼容性处理
+                            presets: [
+                                [
+                                    '@babel/preset-env',
+                                    {
+                                        // 按需加载
+                                        useBuiltIns: 'usage',
+                                        // 指定core-js版本
+                                        corejs: { version: 3 },
+                                        // 指定兼容性做到哪个版本浏览器
+                                        targets: {
+                                            chrome: '60',
+                                            firefox: '60',
+                                            safari: '10',
+                                            ie: '9',
+                                            edge: '11'
+                                        }
+                                    }
+                                ],
 
-                    ],
+                            ],
 
-                    // 开启 babel 缓存
-                    // 第二次构建时，会读取之前的缓存
-                    cacheDirectory: true
-                }
+                            // 开启 babel 缓存
+                            // 第二次构建时，会读取之前的缓存
+                            cacheDirectory: true
+                        }
+                    }
+                ],
+
             },
 
             {
